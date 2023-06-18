@@ -1,0 +1,143 @@
+"""
+File: hangman.py
+-------------------
+In this game the player has to guess a random word letter by letter
+in 8 guesses to save the man.
+
+"""
+
+
+import random
+from graphics import Canvas
+import time
+
+SIZE = 400
+CANVAS = Canvas(SIZE, SIZE)
+
+
+LEXICON_FILE = "Lexicon.txt"    # File to read word list from
+INITIAL_GUESSES = 8             # Max number of guesses per game
+
+
+def play_game(secret_word, guess_count, canvas):
+    """
+    This function is where the game play happens. It asks the user for letter
+    till the word guess is complete or the player runs out of 8 guesses and the man dies.
+    """
+
+    #draw the starting graphics.
+    rec_base = CANVAS.create_rectangle(SIZE/3, 4*(SIZE/5), SIZE/3 + 100, 4*(SIZE/5)+10)
+    rec_pole = CANVAS.create_rectangle((SIZE/3) + 45, 4*(SIZE/5), SIZE/3 + 55, SIZE/4)
+    rec_pole_2 = CANVAS.create_rectangle((SIZE/3) + 45, SIZE/4, SIZE/3 +160, SIZE/4 +10)
+    line_rope = CANVAS.create_line (SIZE/3+150, SIZE/4, SIZE/3+150, SIZE/4 + 100)
+
+
+    # create a list for current state of the word and assign dashes to each item.
+    current_word = []
+    for char in secret_word:
+        current_word.append('-')
+    
+    
+    while guess_count > 0:
+        #opening messages.
+        print ('The word now looks like this: ' , ''.join(current_word))
+        print ('You have ', guess_count, ' guesses left.')
+        guess_letter = (input('Type a single letter here, then press enter: ')).upper()
+  
+        
+        #if the guess is wrong, guess count decreases by one.
+        if guess_letter not in secret_word:
+            guess_count -= 1
+            draw_man(guess_count)
+            print ('There are no ', guess_letter, ' in the word.')
+
+        #if the guess is right keep the letter in the current_word list.
+        else:
+            for i in range(len(secret_word)):
+                if guess_letter == secret_word[i]:
+                    current_word[i] = guess_letter
+            print ('That guess is correct.')
+
+        #decide if player guessed all the letters right.
+        if ''.join(current_word) == secret_word:
+            print('Congratulations, the word is: ' , secret_word)
+            break
+        #decide if player lost.
+        elif guess_count == 0:
+            print('Sorry, you lost. The secret word was: ', secret_word)
+
+        
+
+def get_word():
+    """
+    This function returns a secret word that the player is trying
+    to guess in the game.  
+    """
+    
+    #open the file and read the lines.
+    word_list = []
+    text_file = open(LEXICON_FILE, 'r')
+    lines = text_file.readlines()
+    
+    #append stripped elements into the word_list list.
+    for i in lines:
+        words = i.strip()
+        word_list.append(words)
+    
+    #Set a random index to get the word from.
+    index = random.randrange(len(word_list)-1)
+    return((word_list[index]).upper())
+    
+    #This function draws the man based on the guess count left step by step.
+def draw_man(guess_count):
+   
+    if guess_count == 7:
+        CANVAS.create_oval(260, 200, 310, 250, "SlateBlue") #1 the head
+    elif guess_count == 6:
+        CANVAS.create_rectangle(283, 250, 288, 298, "SlateBlue") #2 the body
+    elif guess_count == 5:
+        CANVAS.create_line(283, 250, 250, 280, "SlateBlue") #3 arm 1
+    elif guess_count == 4:   
+        CANVAS.create_line(287, 250, 320, 280, "SlateBlue") #4 arm 2
+    elif guess_count == 3:   
+        CANVAS.create_line(283, 297, 255, 330, "SlateBlue") #5 leg 1
+    elif guess_count == 2:   
+        CANVAS.create_line(287, 297, 310, 330, "SlateBlue") #6 leg 2
+    elif guess_count == 1:   
+        CANVAS.create_oval(270, 220, 275, 225, "white") #7 eyes 1
+        CANVAS.create_oval(295, 220, 300, 225, "white") #7 eyes 2
+    elif guess_count == 0:   
+        CANVAS.create_line(275, 235, 295, 235, "white") #8 mouth
+        
+        lost_text = CANVAS.create_text(50,30,font_size = 60,text="YOU LOST", color = "SlateBlue")
+
+        dead_text = CANVAS.create_text(50,200,font_size = 20,text="Don't worry,")
+        time.sleep(1)
+
+        dead_text_2 = CANVAS.create_text(50,230,font_size = 20,text="I'm not dead.")
+        time.sleep(1)
+        
+        dead_text_3 = CANVAS.create_text(50,260,font_size = 20,text="But you are!")
+        time.sleep(1)
+        
+
+    
+def main():
+    """
+    To play the game, we first select the secret word for the
+    player to guess and then play the game using that secret word.
+    """
+    
+    print("Welcome to the word guessing game! \n You have " , INITIAL_GUESSES, "guesses to predict the word. Good luck!")
+    secret_word = get_word()
+    play_game(secret_word, INITIAL_GUESSES, CANVAS)
+
+
+
+
+# This provided line is required at the end of a Python file
+# to call the main() function.
+if __name__ == "__main__":
+    main()
+    
+    
